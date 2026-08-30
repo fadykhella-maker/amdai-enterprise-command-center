@@ -3,6 +3,9 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Local supervisor credentials and runtime data
+data/
+
 # C extensions
 *.so
 
