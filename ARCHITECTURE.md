@@ -27,15 +27,45 @@ A future supported AMD server cluster will host Kubernetes, AMD GPU Operator, AI
 5. Mutating operations are separated from read-only telemetry.
 6. No secret values are logged or committed.
 
-## Data flow
+## Compute architecture
 
-```text
-Browser
-  -> Streamlit Community Cloud
-      -> Cloudflare Access
-          -> Cloudflare Tunnel
-              -> Laptop localhost API
-                  -> PyTorch ROCm / Radeon 840M
+```mermaid
+flowchart LR
+  subgraph UX[Experience plane]
+    Browser[Operator browser]
+    Portal[Streamlit Command Center]
+  end
+
+  subgraph SEC[Secure edge transport]
+    CF[Cloudflare edge]
+    Tunnel[Outbound-only tunnel]
+    API[AMD Supervisor\n127.0.0.1:8765]
+  end
+
+  subgraph EDGE[ROCm edge compute — deployed]
+    Torch[PyTorch 2.12]
+    HIP[ROCm / HIP 7.14]
+    GPU[Radeon 840M\ngfx1153]
+    Lab[VS Code + JupyterLab]
+  end
+
+  subgraph EAI[Enterprise AI plane — qualified hardware required]
+    K8s[Kubernetes]
+    Engine[AIM Engine operator]
+    AIM[AIM containers\nvLLM / BentoML]
+    WB[AI Workbench]
+  end
+
+  Browser --> Portal --> CF --> Tunnel --> API --> Torch --> HIP --> GPU
+  Lab --> Torch
+  Portal -. cluster API .-> K8s --> Engine --> AIM
+  WB --> K8s
 ```
+
+Solid paths are deployed or verified on the laptop. Dashed paths represent integration with a separate supported AMD Enterprise AI cluster.
+
+## Capability boundary
+
+The Radeon 840M is a valid ROCm edge accelerator for this project. Current published AIM profiles target AMD Instinct MI300X, MI325X, MI350X, MI355X and Radeon Pro W7900/R9700. The laptop can host a Kubernetes/AIM Engine control-plane lab, but AIM model pods must not be reported as production-ready on the 840M unless AMD publishes a matching profile.
 
 The future Enterprise AI cluster is a separate backend with its own identity, API keys, quotas, and observability.
