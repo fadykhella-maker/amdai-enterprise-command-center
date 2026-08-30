@@ -51,8 +51,8 @@ Deploy `streamlit_app.py` through Streamlit Community Cloud. The preferred app a
 Live laptop connectivity will use:
 
 1. A localhost-only authenticated telemetry and inference API.
-2. An outbound-only Cloudflare Tunnel.
-3. Cloudflare Access service authentication.
+2. A persistent Tailscale Funnel with a stable `ts.net` HTTPS hostname.
+3. Application bearer-token authentication at the AMD Supervisor.
 4. Restricted secrets configured in Streamlit Community Cloud.
 
 ## Repository secrets

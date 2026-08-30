@@ -12,7 +12,7 @@ The Dell laptop runs PyTorch through ROCm/HIP on the Radeon 840M. A future local
 
 ### Secure connectivity plane
 
-Cloudflare Tunnel creates an outbound-only connection from the laptop. Cloudflare Access authenticates the cloud application. The laptop API independently verifies a bearer token.
+Tailscale Funnel provides a stable public HTTPS hostname through an encrypted relay without requiring an owned domain. The laptop API independently verifies a bearer token, and only the Supervisor on localhost port 8765 is exposed.
 
 ### Enterprise compute plane
 
@@ -22,7 +22,7 @@ A future supported AMD server cluster will host Kubernetes, AMD GPU Operator, AI
 
 1. No inbound router port forwarding.
 2. The edge API listens only on localhost.
-3. Cloudflare service credentials remain in Streamlit Secrets.
+3. The stable Tailscale Funnel URL and Supervisor bearer credential remain in Streamlit Secrets.
 4. Application bearer tokens are independently revocable.
 5. Mutating operations are separated from read-only telemetry.
 6. No secret values are logged or committed.
@@ -37,8 +37,8 @@ flowchart LR
   end
 
   subgraph SEC[Secure edge transport]
-    CF[Cloudflare edge]
-    Tunnel[Outbound-only tunnel]
+    CF[Tailscale relay]
+    Tunnel[Tailscale Funnel — persistent background route]
     API[AMD Supervisor\n127.0.0.1:8765]
   end
 
