@@ -1,39 +1,112 @@
-# AMD AI Command Center
+# AMD Intelligent Cloud Control
 
-A cloud command center for an AMD Ryzen AI laptop running ROCm and PyTorch, with a roadmap to integrate AMD Inference Microservices (AIMs), AIM Engine, AMD AI Workbench, and AMD Resource Manager when supported Kubernetes infrastructure is connected.
+An executive command center and engineering control plane for an AMD-powered edge AI environment. The platform connects a live Ryzen AI laptop, ROCm/PyTorch telemetry, a local Kubernetes AI control plane, and a secure Streamlit Cloud experience through one truthful operating view.
 
-## Current state
+> **Leadership objective:** demonstrate how enterprise AI can be governed from strategy to silicon—combining executive visibility, secure edge connectivity, model-serving infrastructure, and a staged path to AMD AI Workbench and Resource Manager.
 
-### Installed and validated locally
+## Executive overview
 
-- AMD Ryzen AI 5 PRO 435
-- AMD Radeon 840M (`gfx1153`)
-- Windows 11
-- Python 3.12 isolated environment
-- ROCm 7.14.0
-- PyTorch 2.12.0 with ROCm/HIP
-- Local Streamlit validation dashboard
+AMD Intelligent Cloud Control turns a developer laptop into a transparent enterprise AI laboratory. It separates the hosted visualization layer from the secured edge runtime, reports verified services as live, and keeps planned capabilities visibly distinct from deployed infrastructure.
 
-### This repository
+The command center provides:
 
-- Executive AMD estate overview
-- ROCm observability UI
-- Remote benchmark controls
-- AIM Catalog preview
-- AI Workbench preview
-- Architecture and security boundaries
-- Deployment roadmap
+- A single-page neural compute map showing the flow from cloud experience to edge compute and AI services.
+- Live ROCm, PyTorch, Radeon, Supervisor, and Kubernetes operating status.
+- Secure laptop connectivity through an authenticated Supervisor and persistent Tailscale Funnel.
+- AIM Engine and KServe control-plane visibility for Kubernetes-native model lifecycle management.
+- Governed launch points for AI Workbench, Resource Manager, models, and agents as those applications become reachable.
+- A leadership-ready roadmap that distinguishes validated, deployed, staged, and hardware-gated capabilities.
 
-### Not yet installed
+## Architecture
 
-- Official AMD AI Workbench
-- AIM Engine
-- AMD Resource Manager
-- AMD GPU Operator/Kubernetes reference stack
+```text
+Executive / Engineering User
+            |
+            v
+Streamlit Cloud Command Center
+            |
+            v
+Tailscale Funnel -- bearer-token boundary
+            |
+            v
+AMD Edge Supervisor (localhost:8765)
+       |                     |
+       v                     v
+ROCm + PyTorch          Docker Desktop
+Radeon 840M                  |
+                             v
+                    Kubernetes Control Plane
+                    |        |          |
+                    v        v          v
+               AIM Engine  KServe   cert-manager
+                    |
+                    v
+      AI Workbench / Resource Manager / Models / Agents
+```
 
-Those services require supported server infrastructure. The portal labels them as planned and never presents them as active.
+The public Streamlit application is the **operations center**, not the compute host. Workloads and platform services remain on the laptop Kubernetes cluster; the dashboard receives authenticated health data and exposes application links only after the corresponding service is deployed and reachable.
 
-## Run locally
+## Verified deployment state
+
+### Live and validated
+
+- AMD Ryzen AI 5 PRO 435 with Radeon 840M (`gfx1153`).
+- ROCm 7.14.60850 and PyTorch 2.12 with ROCm/HIP execution.
+- Streamlit Cloud command center at `amdeai.streamlit.app`.
+- Authenticated AMD Edge Supervisor on local port `8765`.
+- Persistent Tailscale Funnel using a stable `ts.net` HTTPS endpoint.
+- Docker Desktop Kubernetes single-node control plane.
+- cert-manager and Kubernetes Gateway API resources.
+- AIM Engine controller built from the AMD source line and running in `aim-system`.
+- AIM custom resources, including the repaired and established `AIMArtifact` definition.
+- KServe controllers for Kubernetes-native inference orchestration.
+
+### Next deployment wave
+
+- CloudNativePG and the AI Workbench PostgreSQL database.
+- MinIO model and artifact storage.
+- Keycloak identity and role-based access.
+- AMD AI Workbench API and UI.
+- AMD Resource Manager API, UI, RabbitMQ, and cluster agent.
+- Governed model endpoints and an AMD Edge Operations Agent.
+
+These services remain labelled **staged**, **not deployed**, or **planned** in the dashboard until runtime checks prove that they are available. Repository links are source references; they are not presented as application UIs.
+
+## Platform responsibilities
+
+| Component | Operating responsibility |
+|---|---|
+| Streamlit Cloud | Executive visualization, architecture, status, and controlled application access |
+| Tailscale Funnel | Stable encrypted public route to the edge without exposing the laptop address |
+| AMD Edge Supervisor | Authenticated telemetry, health, benchmark, and integration boundary |
+| ROCm + PyTorch | AMD GPU compute runtime and tensor execution layer |
+| Docker Desktop + Kubernetes | Local container and orchestration foundation |
+| AIM Engine | Kubernetes controller for AMD inference lifecycle resources |
+| KServe | Model-serving control plane used to create and manage inference workloads |
+| AI Workbench | Workspace, project, job, model, and experiment experience |
+| Resource Manager | Multi-cluster resource governance, inventory, and policy layer |
+| Keycloak | Identity, single sign-on, roles, and access control |
+| PostgreSQL / MinIO | Application records and model/artifact persistence |
+
+## Security and trust boundaries
+
+- Credentials are never committed to Git.
+- Streamlit secrets hold the Supervisor URL and bearer token.
+- The Supervisor binds locally; Tailscale provides the controlled HTTPS ingress path.
+- Dashboard state is derived from runtime evidence, not hard-coded success labels.
+- Application launch links are enabled only for deployed, tested endpoints.
+- Kubernetes namespaces, service accounts, RBAC, and CRDs isolate platform responsibilities.
+
+Expected Streamlit secrets:
+
+```toml
+AMD_API_URL = "https://your-stable-ts-endpoint"
+AMD_API_TOKEN = "replace-with-a-rotated-secret"
+```
+
+Do not commit `.streamlit/secrets.toml`, tokens, package credentials, or identity-provider secrets.
+
+## Run the command center locally
 
 ```powershell
 python -m venv .venv
@@ -42,18 +115,20 @@ python -m pip install -r requirements.txt
 python -m streamlit run streamlit_app.py
 ```
 
-Open `http://localhost:8501`.
+Open `http://localhost:8501`. The authenticated Supervisor is started separately through the published Windows startup script and is designed to recover at user logon.
 
-## Cloud deployment
+## Operational validation
 
-Deploy `streamlit_app.py` through Streamlit Community Cloud. The preferred app address is `amdai.streamlit.app` if the name is available.
+The platform is considered healthy only when all applicable checks pass:
 
-Live laptop connectivity will use:
+1. Docker Desktop reports Kubernetes `Ready`.
+2. AIM Engine, KServe, and cert-manager pods report `Running` and ready.
+3. The Supervisor health endpoint responds successfully with valid authentication.
+4. Tailscale Funnel reports the stable public route to port `8765`.
+5. Streamlit displays the edge node online and reports compute health separately.
+6. Application buttons open real UIs only after their services and routes pass health checks.
 
-1. A localhost-only authenticated telemetry and inference API.
-2. A persistent Tailscale Funnel with a stable `ts.net` HTTPS hostname.
-3. Application bearer-token authentication at the AMD Supervisor.
-4. Restricted secrets configured in Streamlit Community Cloud.
+## Repository structure
 
 ## Dell Supervisor
 
@@ -63,24 +138,39 @@ node offline. Its status response reports `compute_state` separately. The
 startup script is registered on the Dell as the `AMD Edge Supervisor` Windows
 logon task and is published in this repository for reproducibility.
 
-## Repository secrets
+- `streamlit_app.py` — hosted command-center application.
+- `agent/supervisor.py` — authenticated Dell/AMD edge Supervisor.
+- `scripts/start_supervisor.ps1` — reproducible Windows Supervisor startup.
+- `requirements.txt` — Streamlit application dependencies.
+- `requirements-agent.txt` — local Supervisor dependencies.
 
-Never commit credentials. The application can read these values from Streamlit Secrets after the laptop service exists:
+## Upstream AMD and open-source foundations
 
-- `AMD_API_URL`
-- `AMD_API_TOKEN`
-- `CF_ACCESS_CLIENT_ID`
-- `CF_ACCESS_CLIENT_SECRET`
-
-## Upstream projects
-
-This project integrates with and documents, but does not claim to replace, these upstream projects:
+This project integrates and demonstrates upstream technologies; it does not claim to replace or redistribute them:
 
 - [ROCm](https://github.com/ROCm/ROCm)
 - [AMD Enterprise AI applications](https://github.com/amd-enterprise-ai/amd-eai-apps)
-- [AIM build](https://github.com/amd-enterprise-ai/aim-build)
-- [AIM deploy](https://github.com/amd-enterprise-ai/aim-deploy)
+- [AIM Build](https://github.com/amd-enterprise-ai/aim-build)
+- [AIM Deploy](https://github.com/amd-enterprise-ai/aim-deploy)
 - [AIM Engine](https://github.com/amd-enterprise-ai/aim-engine)
+- [KServe](https://github.com/kserve/kserve)
+
+## Leadership roadmap
+
+1. **Observe:** maintain truthful edge, ROCm, Kubernetes, and AIM health.
+2. **Operate:** deploy AI Workbench with authenticated UI and persistent data services.
+3. **Govern:** add Resource Manager, multi-cluster inventory, quotas, and policy controls.
+4. **Serve:** publish tested model endpoints through AIM Engine and KServe.
+5. **Automate:** introduce a human-approved operations agent for diagnostics and safe remediation.
+6. **Scale:** move hardware-gated production inference to supported AMD accelerator infrastructure while retaining the command center as the management experience.
+
+## Repository positioning (About)
+
+**Recommended GitHub description:**
+
+> Executive AMD edge AI command center unifying ROCm telemetry, secure Tailscale connectivity, Kubernetes, AIM Engine, KServe, AI Workbench, Resource Manager, models, and governed agents.
+
+**Recommended topics:** `amd`, `rocm`, `ryzen-ai`, `enterprise-ai`, `streamlit`, `kubernetes`, `kserve`, `aim-engine`, `ai-workbench`, `edge-ai`, `mlops`, `observability`
 
 ## License
 
