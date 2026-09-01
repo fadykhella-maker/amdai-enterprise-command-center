@@ -10,8 +10,12 @@ import streamlit.components.v1 as components
 
 root = Path(__file__).resolve().parent
 amd_icon_path = root / "assets" / "amd-arrow.svg"
+amd_lockup_mark_path = root / "assets" / "amd-arrow-transparent.svg"
 amd_icon_data_uri = (
     "data:image/svg+xml;base64," + base64.b64encode(amd_icon_path.read_bytes()).decode("ascii")
+)
+amd_lockup_mark_data_uri = (
+    "data:image/svg+xml;base64," + base64.b64encode(amd_lockup_mark_path.read_bytes()).decode("ascii")
 )
 
 st.set_page_config(page_title="AMD Enterprise AI", page_icon=amd_icon_path, layout="wide")
@@ -63,7 +67,7 @@ shell=r'''
 .archmap{position:relative;overflow:hidden;padding:22px;background:radial-gradient(circle at 50% 45%,#201a0833,transparent 38%),linear-gradient(145deg,#080d0a,#050806);min-height:590px}.archmap:before{content:'';position:absolute;inset:0;background-image:linear-gradient(#29312630 1px,transparent 1px),linear-gradient(90deg,#29312630 1px,transparent 1px);background-size:30px 30px;pointer-events:none}.arch-title{position:relative;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.arch-title b{font:600 11px var(--mono);letter-spacing:.16em;color:var(--hi)}.arch-title span{font:9px var(--mono);color:var(--muted)}.lane{position:relative;display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:stretch;margin:11px 0}.lane-label{border:1px solid #4f4521;background:#121107;border-radius:9px;padding:15px 12px}.lane-label b{display:block;font:600 11px var(--mono);color:var(--hi);margin-bottom:6px}.lane-label small{font:8px/1.5 var(--mono);color:var(--muted)}.lane-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:center}.arch-node{position:relative;min-height:92px;border:1px solid #314036;border-radius:10px;background:linear-gradient(145deg,#0d1510,#080c09);padding:13px;box-shadow:0 12px 30px #0005}.arch-node:after{content:'›';position:absolute;right:-11px;top:32px;color:var(--gold);font:25px var(--mono);z-index:2}.arch-node:last-child:after{display:none}.arch-node.live{border-color:#315f3f;box-shadow:inset 0 0 24px #173b2233}.arch-node.control{border-color:#675927}.arch-node.future{border-style:dashed;opacity:.72}.arch-node strong{display:block;font-size:12px;margin-bottom:6px}.arch-node small{display:block;color:#789080;font:8px/1.5 var(--mono)}.arch-node em{display:inline-block;margin-top:8px;border-radius:999px;padding:3px 7px;font:normal 7px var(--mono);color:var(--green);border:1px solid #31593a}.arch-node.future em{color:var(--hi);border-color:#5b5128}.arch-legend{position:relative;display:flex;gap:18px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font:8px var(--mono);color:var(--muted)}.arch-legend i{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;background:var(--green)}.arch-legend .planned i{background:var(--gold)}
 @media(max-width:900px){.lane{grid-template-columns:1fr}.lane-flow{grid-template-columns:1fr 1fr}.arch-node:after{display:none}}
 </style>
-<div class="app"><aside class="rail"><div class="logo" aria-label="AMD logo"><b>AMD</b><img src="AMD_ICON_DATA_URI" alt="AMD arrow"/></div>
+<div class="app"><aside class="rail"><div class="logo" aria-label="AMD logo"><b>AMD</b><img src="AMD_LOCKUP_MARK_DATA_URI" alt="AMD arrow"/></div>
 <button class="nav active" data-v="overview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="5"/><rect x="13" y="10" width="8" height="11"/><rect x="3" y="13" width="8" height="8"/></svg><span>Overview</span></button>
 <button class="nav" data-v="topology"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="m7 12 10-5m-10 5 10 5"/></svg><span>Topology</span></button>
 <button class="nav" data-v="gpu"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 6V3m5 3V3m5 3V3M7 21v-3m5 3v-3m5 3v-3"/></svg><span>ROCm</span></button>
@@ -73,7 +77,7 @@ shell=r'''
 <button class="nav" data-v="agents"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg><span>Agents</span></button>
 <button class="nav" data-v="roadmap"><svg viewBox="0 0 24 24"><path d="M5 19V5m0 0 4 4m-4-4L1 9M9 9h5v5h5"/><circle cx="19" cy="14" r="2"/></svg><span>Roadmap</span></button><div class="space"></div>
 <button class="nav" data-v="about"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg><span>About</span></button></aside>
-<main class="main"><header class="top"><div class="brand"><img src="AMD_ICON_DATA_URI" alt="AMD arrow"/><div><h1>AMD <b>Enterprise AI</b></h1><div class="crumb">ROCm · Radeon · agentic edge infrastructure</div></div></div><div class="topright"><span class="pill STATECLASS"><i></i>EDGE NODE STATE</span><span class="pill">APP-TRACKED GPU HOURS</span><span class="pill">RADEON 840M · ARCH</span></div></header>
+<main class="main"><header class="top"><div class="brand"><img src="AMD_LOCKUP_MARK_DATA_URI" alt="AMD arrow"/><div><h1>AMD <b>Enterprise AI</b></h1><div class="crumb">ROCm · Radeon · agentic edge infrastructure</div></div></div><div class="topright"><span class="pill STATECLASS"><i></i>EDGE NODE STATE</span><span class="pill">APP-TRACKED GPU HOURS</span><span class="pill">RADEON 840M · ARCH</span></div></header>
 <section class="view active" id="overview"><div class="intro"><div><h2>AMD Command Center</h2><p>A live operating surface for the Radeon edge node, ROCm compute, model operations and future Enterprise AI infrastructure. Live and planned capabilities are identified explicitly.</p></div><div class="stamp">EDGE NODE 01 · STATE</div></div>
 <div class="card neural-grid"><div class="grid-heading"><b>AMD Neural Compute Fabric</b><span>EXPERIENCE INPUTS → EDGE + CONTROL LAYERS → AMD EAI CORE → APPLICATION OUTPUTS</span></div><div class="neural-status">● VERIFIED FABRIC · STATE</div>
 <svg viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet">
@@ -108,6 +112,7 @@ Detail        REASON</div></div>
 '''
 
 shell = shell.replace("AMD_ICON_DATA_URI", amd_icon_data_uri)
+shell = shell.replace("AMD_LOCKUP_MARK_DATA_URI", amd_lockup_mark_data_uri)
 
 # Keep the rendered architecture synchronized with the verified production path.
 # Tailscale Funnel supplies the stable public HTTPS hostname without requiring a
