@@ -55,6 +55,19 @@ Live laptop connectivity will use:
 3. Application bearer-token authentication at the AMD Supervisor.
 4. Restricted secrets configured in Streamlit Community Cloud.
 
+## Bond 001 fast AMD path
+
+Bond uses `Qwen/Qwen2.5-1.5B-Instruct` by default and keeps one model resident
+on the Dell Radeon GPU through ROCm. This avoids Kaggle kernel startup and
+model reloads between messages. Mount `amd_bond_runtime.router` in the existing
+authenticated AMD Supervisor, then restart the Supervisor deployment. Docker
+and Kubernetes supervise the service; inference stays on the persistent edge
+process for minimum latency.
+
+The model can be overridden with `AMD_BOND_MODEL`, and response length with
+`AMD_BOND_MAX_NEW_TOKENS`. Do not expose the router without the Supervisor's
+existing bearer-auth middleware.
+
 ## Repository secrets
 
 Never commit credentials. The application can read these values from Streamlit Secrets after the laptop service exists:
