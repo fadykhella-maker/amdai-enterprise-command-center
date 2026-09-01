@@ -60,12 +60,14 @@ The public Streamlit application is the **operations center**, not the compute h
 - AIM Engine controller built from the AMD source line and running in `aim-system`.
 - AIM custom resources, including the repaired and established `AIMArtifact` definition.
 - KServe controllers for Kubernetes-native inference orchestration.
+- CloudNativePG operator and a healthy single-instance AI Workbench PostgreSQL cluster.
+- Persistent `hostpath` database and WAL volumes sized for the laptop lab.
+- MinIO object storage with a persistent volume and validated management console.
+- Keycloak 26.7.2 backed by PostgreSQL, with the `airm` realm, Workbench OIDC client,
+  and `Platform Administrator` role.
 
 ### Next deployment wave
 
-- CloudNativePG and the AI Workbench PostgreSQL database.
-- MinIO model and artifact storage.
-- Keycloak identity and role-based access.
 - AMD AI Workbench API and UI.
 - AMD Resource Manager API, UI, RabbitMQ, and cluster agent.
 - Governed model endpoints and an AMD Edge Operations Agent.
@@ -141,6 +143,7 @@ logon task and is published in this repository for reproducibility.
 - `streamlit_app.py` — hosted command-center application.
 - `agent/supervisor.py` — authenticated Dell/AMD edge Supervisor.
 - `scripts/start_supervisor.ps1` — reproducible Windows Supervisor startup.
+- `deploy/kubernetes/` — declarative Kubernetes manifests for persistent platform repairs and services.
 - `requirements.txt` — Streamlit application dependencies.
 - `requirements-agent.txt` — local Supervisor dependencies.
 
