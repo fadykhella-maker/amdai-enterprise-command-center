@@ -55,18 +55,13 @@ Live laptop connectivity will use:
 3. Application bearer-token authentication at the AMD Supervisor.
 4. Restricted secrets configured in Streamlit Community Cloud.
 
-## Bond 001 fast AMD path
+## Dell Supervisor
 
-Bond uses `Qwen/Qwen2.5-1.5B-Instruct` by default and keeps one model resident
-on the Dell Radeon GPU through ROCm. This avoids Kaggle kernel startup and
-model reloads between messages. Mount `amd_bond_runtime.router` in the existing
-authenticated AMD Supervisor, then restart the Supervisor deployment. Docker
-and Kubernetes supervise the service; inference stays on the persistent edge
-process for minimum latency.
-
-The model can be overridden with `AMD_BOND_MODEL`, and response length with
-`AMD_BOND_MAX_NEW_TOKENS`. Do not expose the router without the Supervisor's
-existing bearer-auth middleware.
+The authenticated Supervisor serves system telemetry even when ROCm cannot be
+initialized, so a GPU-runtime fault does not falsely mark the entire Dell edge
+node offline. Its status response reports `compute_state` separately. The
+startup script is registered on the Dell as the `AMD Edge Supervisor` Windows
+logon task and is published in this repository for reproducibility.
 
 ## Repository secrets
 

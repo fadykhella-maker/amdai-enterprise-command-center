@@ -38,7 +38,7 @@ def telemetry() -> dict:
         reply=requests.get(api_url+"/api/status",headers=headers,timeout=6); reply.raise_for_status(); return reply.json()
     except Exception as exc: return {"state":"offline","reason":str(exc)[:150]}
 
-s=telemetry(); online=s.get("state")=="online"
+s=telemetry(); online=s.get("state")=="online"; compute_ready=s.get("compute_state","ready")=="ready"
 def val(key, default): return html.escape(str(s.get(key,default)))
 gpu=val("gpu_name","AMD Radeon 840M Graphics"); arch=val("architecture","gfx1153")
 hip=val("hip_version","7.14"); torch=val("pytorch_version","2.12")
@@ -46,24 +46,9 @@ cpu=max(0,min(100,round(float(s.get("cpu_percent",0))))); mem=max(0,min(100,roun
 gpup=max(0,min(100,round(float(s.get("gpu_percent",0))))); state="ONLINE" if online else "OFFLINE"
 reason=val("reason","Protected Supervisor connected")
 
-def bond_status() -> dict:
-    if not api_url: return {"state": "offline"}
-    try:
-        headers = {"Authorization": f"Bearer {api_token}"}
-        if sec("CF_ACCESS_CLIENT_ID") and sec("CF_ACCESS_CLIENT_SECRET"):
-            headers.update({"CF-Access-Client-Id": sec("CF_ACCESS_CLIENT_ID"), "CF-Access-Client-Secret": sec("CF_ACCESS_CLIENT_SECRET")})
-        reply = requests.get(api_url + "/api/bond/status", headers=headers, timeout=3)
-        reply.raise_for_status()
-        return reply.json()
-    except Exception:
-        return {"state": "offline"}
-
-bond = bond_status()
-bond_online = bond.get("state") in {"ready", "online"}
-
 st.markdown("""<style>.block-container{padding:0!important;max-width:100%!important}iframe{border:0!important}
 [data-testid=stHeader],[data-testid=stToolbar],[data-testid=stDecoration],[data-testid=stAppDeployButton],#MainMenu,footer{display:none!important}
-div.st-key-amd_bond_fab{position:fixed;right:22px;bottom:28px;z-index:999998;width:58px}div.st-key-amd_bond_fab button{height:58px;border-radius:50%;border:1px solid #f5c542;background:#171307;color:#ffe58a;box-shadow:0 0 28px #f5c54255;font-weight:800}div.st-key-amd_bond_panel{position:fixed;right:22px;bottom:96px;z-index:999997;width:370px;max-height:560px;overflow:auto;padding:16px;border:1px solid #665826;border-radius:16px;background:#070a08f5;box-shadow:0 25px 80px #000b}div.st-key-amd_bond_panel *{color:#edf2ee}div.st-key-amd_bond_panel [data-testid=stChatMessage]{background:#0d120e;border:1px solid #344039;border-radius:10px;padding:8px;margin:6px 0}div.st-key-amd_bond_panel input{color:#111!important}</style>""",unsafe_allow_html=True)
+</style>""",unsafe_allow_html=True)
 
 shell=r'''
 <style>
@@ -170,65 +155,3 @@ models="".join(f'<div class="card feature"><span class="tag off">NOT INSTALLED</
 agents="".join(f'<div class="card feature"><span class="tag pending">PLANNED</span><h3>{n}</h3><p>{r}</p><div class="rows"><div class="row"><span>state</span><b>waiting</b></div></div></div>' for n,r in [("Coordinator","Task and model routing"),("ROCm Operator","GPU health and benchmarks"),("Research","Retrieval and synthesis"),("Code","Local development assistance")])
 for old,new in [("EDGECLASS","live" if online else ""),("EDGETEXT","state-live" if online else "state-off"),("EDGESTATE","LIVE" if online else "OFFLINE"),("STATECLASS","live" if online else "off"),("STATEKPI","green" if online else ""),("MODELCARDS",models),("AGENTCARDS",agents),("GPU_NAME_TOKEN",gpu),("REASON",reason),("TORCH",torch),("ARCH",arch),("HIP",hip),("GPUP",str(gpup)),("CPU",str(cpu)),("MEM",str(mem)),("STATE",state)]: shell=shell.replace(old,new)
 components.html(shell,height=1050,scrolling=True)
-
-
-def bond_headers() -> dict[str, str]:
-    headers = {"Authorization": f"Bearer {api_token}"}
-    if sec("CF_ACCESS_CLIENT_ID") and sec("CF_ACCESS_CLIENT_SECRET"):
-        headers.update({"CF-Access-Client-Id": sec("CF_ACCESS_CLIENT_ID"), "CF-Access-Client-Secret": sec("CF_ACCESS_CLIENT_SECRET")})
-    return headers
-
-
-@st.fragment
-def amd_bond_widget() -> None:
-    with st.container(key="amd_bond_fab"):
-        if st.button("B1", help="Bond 001 · AMD edge agent"):
-            st.session_state["amd_bond_open"] = not st.session_state.get("amd_bond_open", False)
-    if not st.session_state.get("amd_bond_open"):
-        return
-    with st.container(key="amd_bond_panel"):
-        st.markdown("### Bond 001 · AMD Edge")
-        if not api_url:
-            st.error("The Dell edge connection is not configured.")
-            return
-        current = bond_status()
-        loaded = bool(current.get("loaded"))
-        st.caption(f"{current.get('model', 'Qwen 1.5B')} · persistent ROCm · {'READY' if loaded else 'FAST WARM-UP'}")
-        if current.get("state") == "offline":
-            st.warning("Bond endpoint is waiting for the Dell Supervisor update.")
-            return
-        if not loaded and st.button("Warm Bond now", use_container_width=True):
-            try:
-                with st.spinner("Loading the model once onto the Radeon GPU…"):
-                    response = requests.post(api_url + "/api/bond/warm", headers=bond_headers(), timeout=240)
-                    response.raise_for_status()
-                st.rerun(scope="fragment")
-            except Exception as exc:
-                st.error(f"Warm-up failed: {str(exc)[:180]}")
-        messages = st.session_state.setdefault("amd_bond_messages", [{"role": "assistant", "content": "Bond 001 ready on the AMD edge path."}])
-        for message in messages[-8:]:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-        prompt = st.chat_input("Message Bond 001…", disabled=not loaded)
-        if prompt:
-            messages.append({"role": "user", "content": prompt})
-            try:
-                response = requests.post(
-                    api_url + "/api/bond/chat",
-                    headers=bond_headers(),
-                    json={"message": prompt, "history": messages[-9:-1]},
-                    timeout=120,
-                )
-                response.raise_for_status()
-                payload = response.json()
-                answer = payload.get("answer", "No response")
-                speed = payload.get("tokens_per_second")
-                if speed is not None:
-                    answer += f"\n\n`{speed} tok/s · {payload.get('latency_ms')} ms`"
-                messages.append({"role": "assistant", "content": answer})
-            except Exception as exc:
-                messages.append({"role": "assistant", "content": f"AMD edge request failed: {str(exc)[:180]}"})
-            st.rerun(scope="fragment")
-
-
-amd_bond_widget()
