@@ -1,0 +1,13 @@
+[client]
+toolbarMode = "viewer"
+showErrorDetails = "none"
+
+[server]
+headless = true
+
+[theme]
+base = "dark"
+primaryColor = "#d2a34b"
+backgroundColor = "#020405"
+secondaryBackgroundColor = "#0a0e12"
+textColor = "#f4f4f4"
