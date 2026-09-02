@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-import html
+import base64
+from pathlib import Path
 from typing import Any
 
 import streamlit as st
@@ -19,6 +20,8 @@ def _secret(name: str, default: Any = None) -> Any:
 
 
 def _render_global_scene() -> None:
+    map_path = Path(__file__).resolve().parents[1] / "assets" / "amd-global-network-map.png"
+    map_uri = "data:image/png;base64," + base64.b64encode(map_path.read_bytes()).decode("ascii")
     routes = """
       <path d="M115 225 Q360 45 610 210"/><path d="M175 265 Q460 480 790 245"/>
       <path d="M380 170 Q650 5 900 205"/><path d="M440 300 Q710 110 1035 275"/>
@@ -26,7 +29,7 @@ def _render_global_scene() -> None:
     """
     st.markdown(
         f"""
-<div class="amd-login-world" aria-hidden="true">
+<div class="amd-login-world" style="--world-map:url('{map_uri}')" aria-hidden="true">
   <div class="world-heading"><b>AMD is Global</b><span>HQ · Engineering &amp; R&amp;D · Regional Sales · Foundry Partners</span></div>
   <svg viewBox="0 0 1120 500" preserveAspectRatio="xMidYMid slice">
     <defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
@@ -59,12 +62,12 @@ def _render_styles() -> None:
   .stApp {background:#020405;color:#f4f4f4}
   .main .block-container {max-width:560px;margin-top:12vh;padding:34px 38px 32px;position:relative;z-index:4;background:rgba(9,13,17,.96);border:1px solid #29313a;border-radius:25px;box-shadow:0 24px 90px #000}
   .main .block-container:before {content:"AMD";display:block;width:80px;height:80px;margin:0 auto 18px;border-radius:20px;background:linear-gradient(145deg,#e3bd70,#ac7924);color:#17130b;text-align:center;line-height:80px;font:800 22px Inter,sans-serif;box-shadow:0 0 35px rgba(207,158,67,.25)}
-  .amd-login-world {position:fixed;inset:0;z-index:0;overflow:hidden;background:radial-gradient(circle at 50% 32%,#0d1726 0,#04080d 43%,#010202 78%)}
+  .amd-login-world {position:fixed;inset:0;z-index:0;overflow:hidden;background-image:linear-gradient(rgba(1,4,7,.18),rgba(1,3,5,.42)),var(--world-map);background-position:center;background-size:cover;background-repeat:no-repeat}
   .amd-login-world:after {content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.25),transparent 30%,transparent 70%,rgba(0,0,0,.32));pointer-events:none}
   .amd-login-world svg {position:absolute;inset:11% 0 0;width:100%;height:82%;opacity:.78}
   .world-heading {position:absolute;top:26px;left:28px;display:flex;flex-direction:column;gap:3px;color:#8f6d2d;font:14px ui-monospace,monospace;letter-spacing:1px}
   .world-heading b {font:700 22px Inter,sans-serif;color:#c8993f}.world-heading span{color:#58606c}
-  .grid path {stroke:#132235;stroke-width:1;fill:none;opacity:.72}.continents path{fill:#07101a;stroke:#182638;stroke-width:1.5}
+  .grid path {stroke:#132235;stroke-width:1;fill:none;opacity:.28}.continents{display:none}
   .routes path {fill:none;stroke:#245da6;stroke-width:1.4;stroke-dasharray:8 9;animation:route 7s linear infinite;filter:url(#glow)}
   .routes path:nth-child(even){stroke:#c99a43;animation-duration:10s}.nodes circle{fill:#d5a84c;stroke:#f3d48b;stroke-width:2;filter:url(#glow);animation:pulse 2.2s ease-in-out infinite alternate}
   @keyframes route {to{stroke-dashoffset:-136}} @keyframes pulse{to{r:8;opacity:.45}}
@@ -89,11 +92,6 @@ def require_viewer() -> dict[str, str]:
         st.error("Viewer access is not configured. Add the [auth] values in Streamlit Secrets.")
         st.stop()
 
-    _render_styles()
-    _render_global_scene()
-    st.markdown("<div class='portal-note'>AMD ENTERPRISE AI · SECURE TEAM VIEW</div>", unsafe_allow_html=True)
-
-    remember = st.checkbox("Remember this trusted device for 30 days", value=False)
     credentials = {
         "usernames": {
             username: {
@@ -103,6 +101,41 @@ def require_viewer() -> dict[str, str]:
             }
         }
     }
+
+    # Check a signed remembered session without rendering any login elements.
+    # This keeps the authenticated dashboard flush to the top: hidden login
+    # elements no longer leave empty Streamlit layout wrappers behind.
+    authenticator = stauth.Authenticate(
+        credentials,
+        str(_secret("cookie_name", "amd_eai_viewer")),
+        cookie_key,
+        30,
+        auto_hash=False,
+    )
+    authenticator.login(location="unrendered")
+    if st.session_state.get("authentication_status") is True:
+        if "viewer" not in (st.session_state.get("roles") or []):
+            st.error("This account does not have viewer access.")
+            st.stop()
+        st.markdown(
+            """
+            <style>
+            [data-testid="stHeader"],[data-testid="stSidebar"],footer{display:none!important}
+            div.st-key-viewer_logout{position:fixed;right:18px;top:14px;z-index:999999;width:auto}
+            div.st-key-viewer_logout button{background:#0a0e12!important;color:#d7af63!important;border:1px solid #3c3426!important;padding:.3rem .8rem!important}
+            .main .block-container{max-width:100%!important;margin:0!important;padding:0!important}
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+        with st.container(key="viewer_logout"):
+            authenticator.logout("Sign out", location="main", key="amd_viewer_logout")
+        return {"username": username, "role": "viewer"}
+
+    _render_styles()
+    _render_global_scene()
+    st.markdown("<div class='portal-note'>AMD ENTERPRISE AI · SECURE TEAM VIEW</div>", unsafe_allow_html=True)
+    remember = st.checkbox("Remember this trusted device for 30 days", value=False)
     authenticator = stauth.Authenticate(
         credentials,
         str(_secret("cookie_name", "amd_eai_viewer")),
@@ -124,16 +157,4 @@ def require_viewer() -> dict[str, str]:
     if "viewer" not in (st.session_state.get("roles") or []):
         st.error("This account does not have viewer access.")
         st.stop()
-    st.markdown(
-        """
-        <style>
-        .amd-login-world,.portal-note,[data-testid="stCheckbox"]{display:none!important}
-        .main .block-container{max-width:100%!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
-        .main .block-container:before{display:none!important}
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-    with st.container(key="viewer_logout"):
-        authenticator.logout("Sign out", location="main", key="amd_viewer_logout")
-    return {"username": username, "role": "viewer"}
+    st.rerun()
