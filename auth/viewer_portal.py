@@ -136,13 +136,6 @@ def require_viewer() -> dict[str, str]:
     _render_global_scene()
     st.markdown("<div class='portal-note'>AMD ENTERPRISE AI · SECURE TEAM VIEW</div>", unsafe_allow_html=True)
     remember = st.checkbox("Remember this trusted device for 30 days", value=False)
-    authenticator = stauth.Authenticate(
-        credentials,
-        str(_secret("cookie_name", "amd_eai_viewer")),
-        cookie_key,
-        30 if remember else 0,
-        auto_hash=False,
-    )
     authenticator.login(
         location="main",
         max_login_attempts=5,
@@ -157,4 +150,6 @@ def require_viewer() -> dict[str, str]:
     if "viewer" not in (st.session_state.get("roles") or []):
         st.error("This account does not have viewer access.")
         st.stop()
+    if not remember:
+        authenticator.cookie_controller.delete_cookie()
     st.rerun()
