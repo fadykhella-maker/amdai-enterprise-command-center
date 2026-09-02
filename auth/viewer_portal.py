@@ -62,14 +62,14 @@ def _render_styles() -> None:
   div.st-key-viewer_logout {position:fixed;right:18px;top:14px;z-index:999999;width:auto}
   div.st-key-viewer_logout button {background:#0a0e12!important;color:#d7af63!important;border:1px solid #3c3426!important;padding:.3rem .8rem!important}
   .stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"] {background:transparent!important;color:#f4f4f4}
-  [data-testid="stMainBlockContainer"],.main .block-container {width:min(650px,calc(100vw - 36px))!important;max-width:650px!important;margin:15vh auto 0!important;padding:20px 34px 18px!important;position:relative;z-index:4;background:rgba(9,13,17,.94)!important;border:1px solid #36414c!important;border-radius:18px;box-shadow:0 24px 90px #000}
+  [data-testid="stMainBlockContainer"],.main .block-container {width:min(650px,calc(100vw - 36px))!important;max-width:650px!important;margin:15vh auto 0!important;padding:20px 34px 52px!important;position:relative;z-index:4;background:rgba(9,13,17,.94)!important;border:1.5px solid rgba(255,255,255,.82)!important;border-radius:18px;box-shadow:0 24px 90px #000}
   [data-testid="stMainBlockContainer"]:before,.main .block-container:before {content:"AMD";display:block;position:relative;z-index:3;width:52px;height:52px;margin:0 auto 6px;border-radius:13px;background:linear-gradient(145deg,#e3bd70,#ac7924);color:#17130b;text-align:center;line-height:52px;font:800 17px Inter,sans-serif;box-shadow:0 0 35px rgba(207,158,67,.25)}
   [data-testid="stMainBlockContainer"]>[data-testid="stVerticalBlock"],.main .block-container>[data-testid="stVerticalBlock"]{position:relative;z-index:3;gap:.35rem!important}
   .amd-login-world {position:fixed;inset:0;z-index:-1;overflow:hidden;background:#010305}
-  .amd-login-world .world-map-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;opacity:.82;filter:saturate(.92) brightness(.72)}
-  .amd-login-world:after {content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(rgba(1,4,7,.08),rgba(1,3,5,.28)),linear-gradient(90deg,rgba(0,0,0,.18),transparent 30%,transparent 70%,rgba(0,0,0,.25));pointer-events:none}
-  .amd-login-world svg {position:absolute;z-index:2;inset:11% 0 0;width:100%;height:82%;opacity:.42}
-  .login-card-surface{position:fixed;z-index:0;left:50%;top:15vh;transform:translateX(-50%);width:min(650px,calc(100vw - 36px));height:410px;background:rgba(5,8,11,.84);border:1.5px solid rgba(255,255,255,.82);border-radius:16px;box-shadow:0 24px 90px #000;pointer-events:none}
+  .amd-login-world .world-map-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;opacity:.96;filter:saturate(1.16) brightness(.92) contrast(1.08) drop-shadow(0 0 14px rgba(211,162,71,.3))}
+  .amd-login-world:after {content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(rgba(1,4,7,.02),rgba(1,3,5,.14)),linear-gradient(90deg,rgba(0,0,0,.08),transparent 30%,transparent 70%,rgba(0,0,0,.1));pointer-events:none}
+  .amd-login-world svg {position:absolute;z-index:2;inset:11% 0 0;width:100%;height:82%;opacity:.64;filter:drop-shadow(0 0 7px rgba(211,162,71,.5))}
+  .login-card-surface{display:none!important}
   .world-heading {position:absolute;z-index:3;top:26px;left:28px;display:flex;flex-direction:column;gap:3px;color:#8f6d2d;font:14px ui-monospace,monospace;letter-spacing:1px}
   .world-heading b {font:700 22px Inter,sans-serif;color:#c8993f}.world-heading span{color:#58606c}
   .grid path {stroke:#132235;stroke-width:1;fill:none;opacity:.28}.continents{display:none}
@@ -80,9 +80,13 @@ def _render_styles() -> None:
   [data-testid="stForm"] h1,[data-testid="stForm"] h2,[data-testid="stForm"] h3{text-align:center;color:#d3a247}
   .stTextInput input {background:#020304!important;border-color:#28303a!important;color:#fff!important}
   .stTextInput input{border:1px solid #d9dde1!important}.stTextInput label,.stCheckbox label,[data-testid="stForm"] p{color:#f5f7f8!important;font-family:Inter,Arial,sans-serif!important}.portal-note{color:#e1e5e8!important}
-  .stButton button,[data-testid="stFormSubmitButton"] button {background:linear-gradient(90deg,#e2bd78,#bb842b)!important;color:#17130b!important;border:0!important;font-weight:800!important}
+  [data-testid="stForm"] [data-testid="stElementContainer"]:has([data-testid="stFormSubmitButton"]){width:100%!important;display:block!important}
+  [data-testid="stFormSubmitButton"],[data-testid="stFormSubmitButton"]>div{display:flex!important;justify-content:center!important;align-items:center!important;width:100%!important;margin:0!important;padding:0!important}
+  [data-testid="stFormSubmitButton"] button {position:static!important;transform:none!important;margin:4px auto 0!important;background:linear-gradient(90deg,#e2bd78,#bb842b)!important;color:#17130b!important;border:0!important;font-weight:800!important}
+  [data-testid="stCheckbox"]{display:flex!important;justify-content:center!important;width:100%!important;margin:2px 0 0!important}
+  [data-testid="stCheckbox"] label{width:auto!important;margin:0 auto!important}
   .portal-note{text-align:center;color:#8f98a5;font:12px ui-monospace,monospace;letter-spacing:1.5px;margin:-10px 0 16px}
-  @media(max-width:700px){[data-testid="stMainBlockContainer"],.main .block-container{margin-top:7vh!important;padding:24px 22px!important}.login-card-surface{top:7vh;height:470px}.world-heading{left:18px}.world-heading span{display:none}.amd-login-world svg{width:180%;left:-40%}}
+  @media(max-width:700px){[data-testid="stMainBlockContainer"],.main .block-container{margin-top:7vh!important;padding:24px 22px 58px!important}.world-heading{left:18px}.world-heading span{display:none}.amd-login-world svg{width:180%;left:-40%}}
 </style>
 """,
         unsafe_allow_html=True,
@@ -144,12 +148,12 @@ def require_viewer() -> dict[str, str]:
     _render_styles()
     _render_global_scene()
     st.markdown("<div class='portal-note'>AMD ENTERPRISE AI · SECURE TEAM VIEW</div>", unsafe_allow_html=True)
-    remember = st.checkbox("Remember this trusted device for 30 days", value=False)
     authenticator.login(
         location="main",
         max_login_attempts=5,
         fields={"Form name": "Team View", "Username": "Username", "Password": "Password", "Login": "Sign in"},
     )
+    remember = st.checkbox("Remember this trusted device for 30 days", value=False)
 
     status = st.session_state.get("authentication_status")
     if status is False:
