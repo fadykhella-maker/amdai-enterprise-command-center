@@ -60,8 +60,9 @@ def _render_styles() -> None:
   div.st-key-viewer_logout {position:fixed;right:18px;top:14px;z-index:999999;width:auto}
   div.st-key-viewer_logout button {background:#0a0e12!important;color:#d7af63!important;border:1px solid #3c3426!important;padding:.3rem .8rem!important}
   .stApp {background:#020405;color:#f4f4f4}
-  .main .block-container {max-width:560px;margin-top:12vh;padding:34px 38px 32px;position:relative;z-index:4;background:rgba(9,13,17,.96);border:1px solid #29313a;border-radius:25px;box-shadow:0 24px 90px #000}
-  .main .block-container:before {content:"AMD";display:block;width:80px;height:80px;margin:0 auto 18px;border-radius:20px;background:linear-gradient(145deg,#e3bd70,#ac7924);color:#17130b;text-align:center;line-height:80px;font:800 22px Inter,sans-serif;box-shadow:0 0 35px rgba(207,158,67,.25)}
+  [data-testid="stMainBlockContainer"],.main .block-container {width:min(560px,calc(100vw - 36px))!important;max-width:560px!important;margin:11vh auto 0!important;padding:30px 38px 28px!important;position:relative;z-index:4;background:rgba(9,13,17,.96);border:1px solid #29313a;border-radius:25px;box-shadow:0 24px 90px #000}
+  [data-testid="stMainBlockContainer"]:before,.main .block-container:before {content:"AMD";display:block;width:72px;height:72px;margin:0 auto 14px;border-radius:18px;background:linear-gradient(145deg,#e3bd70,#ac7924);color:#17130b;text-align:center;line-height:72px;font:800 21px Inter,sans-serif;box-shadow:0 0 35px rgba(207,158,67,.25)}
+  [data-testid="stMainBlockContainer"]>[data-testid="stVerticalBlock"],.main .block-container>[data-testid="stVerticalBlock"]{gap:.65rem!important}
   .amd-login-world {position:fixed;inset:0;z-index:0;overflow:hidden;background-image:linear-gradient(rgba(1,4,7,.18),rgba(1,3,5,.42)),var(--world-map);background-position:center;background-size:cover;background-repeat:no-repeat}
   .amd-login-world:after {content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.25),transparent 30%,transparent 70%,rgba(0,0,0,.32));pointer-events:none}
   .amd-login-world svg {position:absolute;inset:11% 0 0;width:100%;height:82%;opacity:.78}
@@ -76,7 +77,7 @@ def _render_styles() -> None:
   .stTextInput input {background:#020304!important;border-color:#28303a!important;color:#fff!important}
   .stButton button,[data-testid="stFormSubmitButton"] button {background:linear-gradient(90deg,#e2bd78,#bb842b)!important;color:#17130b!important;border:0!important;font-weight:800!important}
   .portal-note{text-align:center;color:#8f98a5;font:12px ui-monospace,monospace;letter-spacing:1.5px;margin:-10px 0 16px}
-  @media(max-width:700px){.main .block-container{margin-top:8vh;padding:26px 22px}.world-heading{left:18px}.world-heading span{display:none}.amd-login-world svg{width:180%;left:-40%}}
+  @media(max-width:700px){[data-testid="stMainBlockContainer"],.main .block-container{margin-top:7vh!important;padding:24px 22px!important}.world-heading{left:18px}.world-heading span{display:none}.amd-login-world svg{width:180%;left:-40%}}
 </style>
 """,
         unsafe_allow_html=True,
@@ -123,7 +124,10 @@ def require_viewer() -> dict[str, str]:
             [data-testid="stHeader"],[data-testid="stSidebar"],footer{display:none!important}
             div.st-key-viewer_logout{position:fixed;right:18px;top:14px;z-index:999999;width:auto}
             div.st-key-viewer_logout button{background:#0a0e12!important;color:#d7af63!important;border:1px solid #3c3426!important;padding:.3rem .8rem!important}
-            .main .block-container{max-width:100%!important;margin:0!important;padding:0!important}
+            [data-testid="stMainBlockContainer"],.main .block-container{width:100%!important;max-width:100%!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+            [data-testid="stMainBlockContainer"]:before,.main .block-container:before{display:none!important;content:none!important}
+            [data-testid="stMainBlockContainer"]>[data-testid="stVerticalBlock"],.main .block-container>[data-testid="stVerticalBlock"]{gap:0!important;padding:0!important;margin:0!important}
+            div.st-key-viewer_logout{position:fixed!important;margin:0!important;padding:0!important;height:auto!important}
             </style>
             """,
             unsafe_allow_html=True,
