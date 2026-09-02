@@ -61,11 +61,10 @@ def _render_styles() -> None:
   div.st-key-viewer_logout {position:fixed;right:18px;top:14px;z-index:999999;width:auto}
   div.st-key-viewer_logout button {background:#0a0e12!important;color:#d7af63!important;border:1px solid #3c3426!important;padding:.3rem .8rem!important}
   .stApp {background:#020405;color:#f4f4f4}
-  [data-testid="stMainBlockContainer"],.main .block-container {width:min(560px,calc(100vw - 36px))!important;max-width:560px!important;margin:11vh auto 0!important;padding:30px 38px 28px!important;position:relative;z-index:4;background:transparent!important;border:0!important;border-radius:25px}
-  [data-testid="stMainBlockContainer"]:after,.main .block-container:after{content:"";position:absolute;inset:0;z-index:1;background:rgba(9,13,17,.93);border:1px solid #36414c;border-radius:25px;box-shadow:0 24px 90px #000;backdrop-filter:blur(5px);pointer-events:none}
+  [data-testid="stMainBlockContainer"],.main .block-container {width:min(560px,calc(100vw - 36px))!important;max-width:560px!important;margin:11vh auto 0!important;padding:30px 38px 28px!important;position:relative;z-index:4;background:rgba(9,13,17,.93)!important;border:1px solid #36414c!important;border-radius:25px;box-shadow:0 24px 90px #000;backdrop-filter:blur(5px)}
   [data-testid="stMainBlockContainer"]:before,.main .block-container:before {content:"AMD";display:block;position:relative;z-index:3;width:72px;height:72px;margin:0 auto 14px;border-radius:18px;background:linear-gradient(145deg,#e3bd70,#ac7924);color:#17130b;text-align:center;line-height:72px;font:800 21px Inter,sans-serif;box-shadow:0 0 35px rgba(207,158,67,.25)}
   [data-testid="stMainBlockContainer"]>[data-testid="stVerticalBlock"],.main .block-container>[data-testid="stVerticalBlock"]{position:relative;z-index:3;gap:.65rem!important}
-  .amd-login-world {position:fixed;inset:0;z-index:0;overflow:hidden;background:#010305}
+  .amd-login-world {position:fixed;inset:0;z-index:-1;overflow:hidden;background:#010305}
   .amd-login-world .world-map-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;opacity:.82;filter:saturate(.92) brightness(.72)}
   .amd-login-world:after {content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(rgba(1,4,7,.08),rgba(1,3,5,.28)),linear-gradient(90deg,rgba(0,0,0,.18),transparent 30%,transparent 70%,rgba(0,0,0,.25));pointer-events:none}
   .amd-login-world svg {position:absolute;z-index:2;inset:11% 0 0;width:100%;height:82%;opacity:.42}
