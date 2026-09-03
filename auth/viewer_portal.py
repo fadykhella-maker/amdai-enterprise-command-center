@@ -147,7 +147,7 @@ def require_viewer() -> dict[str, str]:
 
     _render_styles()
     _render_global_scene()
-    st.markdown("<div class='portal-note'>AMD AI Cloud Control</div>", unsafe_allow_html=True)
+    st.markdown("<div class='portal-note'>AMD Intelligent Command Center · Secure Team View</div>", unsafe_allow_html=True)
     authenticator.login(
         location="main",
         max_login_attempts=5,
