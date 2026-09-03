@@ -1,0 +1,13 @@
+replicas: 1
+adminSecretName: airm-rabbitmq-admin
+tlsSecretName: airm-tls-secret
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+persistence:
+  storage: 2Gi
+  storageClassName: hostpath

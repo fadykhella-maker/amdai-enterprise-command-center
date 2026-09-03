@@ -1,0 +1,19 @@
+database: airm
+username: airm_user
+instances: 1
+userSecretName: airm-cnpg-user
+superuserSecretName: airm-cnpg-superuser
+sharedBuffers: 64MB
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
+  limits:
+    memory: 512Mi
+    cpu: 500m
+storage:
+  size: 5Gi
+  storageClass: hostpath
+walStorage:
+  size: 2Gi
+  storageClass: hostpath

@@ -1,0 +1,54 @@
+# Local Docker Desktop profile for AMD AI Workbench.
+# Secrets are intentionally referenced by name and must never be stored here.
+standAloneMode: true
+defaultNamespace: workbench
+appDomain: localhost
+
+backend:
+  image:
+    repository: amdenterpriseai/aiwb-api
+    tag: "2.0.1"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 384Mi
+    limits:
+      cpu: 1500m
+      memory: 2Gi
+  clusterHost: "http://127.0.0.1:8012"
+  workspacesHost: "http://127.0.0.1:8013"
+
+frontend:
+  image:
+    repository: amdenterpriseai/aiwb-ui
+    tag: "2.0.1"
+
+keycloak:
+  publicUrl: "http://127.0.0.1:8080"
+  internalUrl: "http://keycloak.keycloak.svc.cluster.local:8080"
+  realm: airm
+  clientId: aiwb-ui
+  secretName: aiwb-ui-keycloak-secret
+
+minio:
+  url: "http://aiwb-minio.aiwb.svc.cluster.local:9000"
+  bucket: default-bucket
+  credentialsSecretName: minio-credentials
+  accessKeyKey: minio-access-key
+  secretKeyKey: minio-secret-key
+
+clusterAuth:
+  enabled: false
+  secretName: cluster-auth-admin-token
+
+aiGateway:
+  enabled: false
+
+aim:
+  routing:
+    enabled: false
+
+gateway:
+  namespace: envoy-gateway-system
+  gatewayName: https
+

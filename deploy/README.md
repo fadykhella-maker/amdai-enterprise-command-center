@@ -6,6 +6,9 @@ This directory contains declarative, non-secret resources used by the AMD Intell
 
 - `kubernetes/aim-engine-runtime-access.yaml` persists the Gateway API and KServe permissions required by AIM Engine.
 - `kubernetes/keycloak.yaml` deploys the pinned Keycloak identity service and its internal Kubernetes Service. Database and bootstrap credentials must exist before application.
+- `kubernetes/aiwb-local-values.yaml` pins the standalone AI Workbench laptop profile without storing secrets.
+
+`scripts/deploy_aiwb_local.ps1` audits the existing services, installs only missing Workbench operators, deploys AMD AI Workbench `2.0.1`, verifies the UI/API, and starts hidden local port forwards on `8011` and `8012`.
 
 ## Verified runtime checkpoint
 

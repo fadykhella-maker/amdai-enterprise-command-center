@@ -1,0 +1,52 @@
+# Resource-capped local profile for AMD Resource Manager on Docker Desktop.
+# Credentials are referenced by Kubernetes Secret name and never stored here.
+airm-api:
+  airm:
+    appDomain: localhost
+    includeDemoSetup: false
+    keycloak:
+      internalUrl: http://keycloak.keycloak.svc.cluster.local:8080
+      publicUrl: http://127.0.0.1:8080
+      clientId: aiwb-ui
+      realm: airm
+      adminClientSecretName: airm-keycloak-admin-client
+      uiClientSecretName: airm-keycloak-ui-creds
+      userCredentialsSecretName: airm-user-credentials
+    prometheus:
+      url: http://127.0.0.1:9090
+    frontend:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+    backend:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 750m
+          memory: 1Gi
+
+airm-agent:
+  airm:
+    agent:
+      clusterName: dell-amd-edge
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+    webhook:
+      resources:
+        requests:
+          cpu: 25m
+          memory: 64Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi

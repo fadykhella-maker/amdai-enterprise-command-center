@@ -68,9 +68,9 @@ The public Streamlit application is the **operations center**, not the compute h
 
 ### Next deployment wave
 
-- AMD AI Workbench API and UI.
+- AMD AI Workbench API and UI, with a pinned local deployment profile and authenticated callback configuration.
 - AMD Resource Manager API, UI, RabbitMQ, and cluster agent.
-- Governed model endpoints and an AMD Edge Operations Agent.
+- Bond 001, a governed local operations agent using native Windows Ollama and an initial Phi-4 Mini 3.8B quantized model.
 
 These services remain labelled **staged**, **not deployed**, or **planned** in the dashboard until runtime checks prove that they are available. Repository links are source references; they are not presented as application UIs.
 
@@ -89,6 +89,8 @@ These services remain labelled **staged**, **not deployed**, or **planned** in t
 | Resource Manager | Multi-cluster resource governance, inventory, and policy layer |
 | Keycloak | Identity, single sign-on, roles, and access control |
 | PostgreSQL / MinIO | Application records and model/artifact persistence |
+| Ollama | Native Windows inference runtime selected for measured Radeon/Vulkan compatibility |
+| Bond 001 | Approval-gated local assistant that cannot mutate the laptop or cluster without an allow-listed tool |
 
 ## Security and trust boundaries
 
@@ -143,6 +145,9 @@ logon task and is published in this repository for reproducibility.
 - `streamlit_app.py` — hosted command-center application.
 - `agent/supervisor.py` — authenticated Dell/AMD edge Supervisor.
 - `scripts/start_supervisor.ps1` — reproducible Windows Supervisor startup.
+- `scripts/deploy_aiwb_local.ps1` — idempotent standalone AI Workbench deployment and verification.
+- `scripts/setup_bond001.ps1` — native Ollama, model, Bond 001 and logon-task bootstrap.
+- `agent/bond001.py` — authenticated local Bond 001 API with no unrestricted operating-system tools.
 - `deploy/kubernetes/` — declarative Kubernetes manifests for persistent platform repairs and services.
 - `requirements.txt` — Streamlit application dependencies.
 - `requirements-agent.txt` — local Supervisor dependencies.
@@ -166,6 +171,18 @@ This project integrates and demonstrates upstream technologies; it does not clai
 4. **Serve:** publish tested model endpoints through AIM Engine and KServe.
 5. **Automate:** introduce a human-approved operations agent for diagnostics and safe remediation.
 6. **Scale:** move hardware-gated production inference to supported AMD accelerator infrastructure while retaining the command center as the management experience.
+
+## Prepared execution sequence
+
+Run these from a normal PowerShell terminal where `kubectl` and `helm` are already available:
+
+```powershell
+Set-Location "C:\Users\Fady KHELLA\Fady KHELLA Business\AMD EAI\amdai-enterprise-command-center"
+& .\scripts\deploy_aiwb_local.ps1
+& .\scripts\setup_bond001.ps1
+```
+
+AI Workbench is accepted only after its UI and API deployments are ready and their health endpoints respond. Bond 001 is accepted only after Ollama reports a version, the pinned model is present, and `http://127.0.0.1:8766/health` reports both the agent and runtime online.
 
 ## Repository positioning (About)
 
