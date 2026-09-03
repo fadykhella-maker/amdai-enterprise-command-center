@@ -71,7 +71,7 @@ def _render_styles() -> None:
   .amd-login-world svg {position:absolute;z-index:2;inset:11% 0 0;width:100%;height:82%;opacity:.64;filter:drop-shadow(0 0 7px rgba(211,162,71,.5))}
   .login-card-surface{display:none!important}
   .world-heading {position:absolute;z-index:3;top:26px;left:28px;display:flex;flex-direction:column;gap:3px;color:#8f6d2d;font:14px ui-monospace,monospace;letter-spacing:1px}
-  .world-heading b {font:700 22px Inter,sans-serif;color:#c8993f}.world-heading span{color:#58606c}
+  .world-heading b {font:700 22px Inter,sans-serif;color:#c8993f}.world-heading span{color:#ffffff}
   .grid path {stroke:#132235;stroke-width:1;fill:none;opacity:.28}.continents{display:none}
   .routes path {fill:none;stroke:#245da6;stroke-width:1.4;stroke-dasharray:8 9;animation:route 7s linear infinite;filter:url(#glow)}
   .routes path:nth-child(even){stroke:#c99a43;animation-duration:10s}.nodes circle{fill:#d5a84c;stroke:#f3d48b;stroke-width:2;filter:url(#glow);animation:pulse 2.2s ease-in-out infinite alternate}
