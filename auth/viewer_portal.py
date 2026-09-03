@@ -31,7 +31,7 @@ def _render_global_scene() -> None:
         f"""
 <div class="amd-login-world" aria-hidden="true">
   <img class="world-map-image" src="{map_uri}" alt="" />
-  <div class="world-heading"><b>AMD is Global</b><span>HQ · Engineering &amp; R&amp;D · Regional Sales · Foundry Partners</span></div>
+  <div class="world-heading"><b>AMD Accelerated Intelligence</b><span>AMD GPU · ROCm Engineering · Global Compute Fabric</span></div>
   <svg viewBox="0 0 1120 500" preserveAspectRatio="xMidYMid slice">
     <defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
     <g class="grid"><path d="M0 100H1120M0 200H1120M0 300H1120M0 400H1120M140 0V500M280 0V500M420 0V500M560 0V500M700 0V500M840 0V500M980 0V500"/></g>
@@ -147,7 +147,7 @@ def require_viewer() -> dict[str, str]:
 
     _render_styles()
     _render_global_scene()
-    st.markdown("<div class='portal-note'>AMD ENTERPRISE AI · SECURE TEAM VIEW</div>", unsafe_allow_html=True)
+    st.markdown("<div class='portal-note'>AMD AI Cloud Control</div>", unsafe_allow_html=True)
     authenticator.login(
         location="main",
         max_login_attempts=5,
