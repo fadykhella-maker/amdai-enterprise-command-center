@@ -139,7 +139,8 @@ def status() -> dict[str, object]:
         "services": {
             "ollama": local_service("http://127.0.0.1:11434/api/version"),
             "bond001": local_service("http://127.0.0.1:8766/health"),
-            "ai_workbench": local_service("http://127.0.0.1:8011/api/health"),
+            "ai_workbench": local_service("http://127.0.0.1:8012/v1/health"),
+            "airm": local_service("http://127.0.0.1:8090/v1/health"),
         },
         "uptime_seconds": int(time.time() - STARTED),
         "timestamp": time.time(),

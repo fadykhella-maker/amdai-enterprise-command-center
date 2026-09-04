@@ -153,7 +153,12 @@ def require_viewer() -> dict[str, str]:
         max_login_attempts=5,
         fields={"Form name": "Team View", "Username": "Username", "Password": "Password", "Login": "Sign in"},
     )
-    remember = st.checkbox("Remember this trusted device for 30 days", value=False)
+    st.checkbox(
+        "Remember this trusted device for 30 days",
+        value=True,
+        disabled=True,
+        help="A signed authentication cookie is retained for 30 days. Use Sign out to remove it sooner.",
+    )
 
     status = st.session_state.get("authentication_status")
     if status is False:
@@ -163,6 +168,4 @@ def require_viewer() -> dict[str, str]:
     if "viewer" not in (st.session_state.get("roles") or []):
         st.error("This account does not have viewer access.")
         st.stop()
-    if not remember:
-        authenticator.cookie_controller.delete_cookie()
     st.rerun()
