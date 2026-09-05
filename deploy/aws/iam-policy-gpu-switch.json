@@ -1,0 +1,65 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DescribeIsAccountWideButRegionLocked",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2:DescribeInstanceStatus",
+        "ec2:DescribeInstanceTypes",
+        "ec2:DescribeImages",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeSpotPriceHistory",
+        "ec2:DescribeTags"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": { "aws:RequestedRegion": "REPLACE_WITH_YOUR_REGION" }
+      }
+    },
+    {
+      "Sid": "LaunchOnlyTheChosenSpotInstanceTypeTaggedForThisProject",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": [
+        "arn:aws:ec2:REPLACE_WITH_YOUR_REGION:REPLACE_WITH_YOUR_ACCOUNT_ID:instance/*",
+        "arn:aws:ec2:REPLACE_WITH_YOUR_REGION:REPLACE_WITH_YOUR_ACCOUNT_ID:volume/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:InstanceType": "g4dn.xlarge",
+          "aws:RequestTag/Project": "amd-cloud-gpu"
+        }
+      }
+    },
+    {
+      "Sid": "RunInstancesAlsoReferencesThesePreExistingResourcesPerLaunch",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": [
+        "arn:aws:ec2:REPLACE_WITH_YOUR_REGION:REPLACE_WITH_YOUR_ACCOUNT_ID:network-interface/*",
+        "arn:aws:ec2:REPLACE_WITH_YOUR_REGION:REPLACE_WITH_YOUR_ACCOUNT_ID:subnet/*",
+        "arn:aws:ec2:REPLACE_WITH_YOUR_REGION:REPLACE_WITH_YOUR_ACCOUNT_ID:security-group/*",
+        "arn:aws:ec2:REPLACE_WITH_YOUR_REGION:REPLACE_WITH_YOUR_ACCOUNT_ID:key-pair/*",
+        "arn:aws:ec2:REPLACE_WITH_YOUR_REGION::image/*"
+      ],
+      "Condition": {
+        "StringEquals": { "aws:RequestedRegion": "REPLACE_WITH_YOUR_REGION" }
+      }
+    },
+    {
+      "Sid": "StopOrTerminateOnlyInstancesTaggedForThisProject",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:StopInstances",
+        "ec2:TerminateInstances"
+      ],
+      "Resource": "arn:aws:ec2:REPLACE_WITH_YOUR_REGION:REPLACE_WITH_YOUR_ACCOUNT_ID:instance/*",
+      "Condition": {
+        "StringEquals": { "ec2:ResourceTag/Project": "amd-cloud-gpu" }
+      }
+    }
+  ]
+}
