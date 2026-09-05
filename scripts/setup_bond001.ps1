@@ -75,13 +75,16 @@ Start-Sleep -Seconds 3
 $health = Invoke-RestMethod -Uri "http://127.0.0.1:8766/health" -TimeoutSec 10
 $health | Format-List | Out-Host
 
-$taskCommand = "`"$python`" -m uvicorn agent.bond001:app --host 127.0.0.1 --port 8766"
-# schtasks.exe re-tokenizes /TR by spaces even when PowerShell already quoted the
-# python.exe path, which breaks on "Fady KHELLA" in this machine's user profile
-# path. The documented fix is to escape the inner quotes and wrap the whole
-# command in one more outer quote pair so schtasks sees it as a single token.
-$taskCommandEscaped = '"' + $taskCommand.Replace('"', '\"') + '"'
-& schtasks.exe /Create /TN "Bond 001 Agent" /SC ONLOGON /TR $taskCommandEscaped /F | Out-Host
+# schtasks.exe /TR re-tokenizes its whole command string by spaces even when
+# PowerShell already quoted the python.exe path, which breaks on "Fady KHELLA"
+# in this machine's user profile path -- a prior attempt to fix that by
+# escaping the inner quotes still failed in real use (untestable here, since
+# this sandbox has no Task Scheduler access). Register-ScheduledTask sidesteps
+# the whole problem: -Execute and -Argument are separate parameters, so the
+# path with spaces never has to survive being re-parsed out of one string.
+$taskAction = New-ScheduledTaskAction -Execute $python -Argument "-m uvicorn agent.bond001:app --host 127.0.0.1 --port 8766" -WorkingDirectory $repoRoot
+$taskTrigger = New-ScheduledTaskTrigger -AtLogOn
+Register-ScheduledTask -TaskName "Bond 001 Agent" -Action $taskAction -Trigger $taskTrigger -Description "Bond 001 local agent (FastAPI wrapper around Ollama)" -Force | Out-Null
 
 Write-Host "Bond 001 is ready on http://127.0.0.1:8766" -ForegroundColor Green
 Write-Host "Its bearer token is stored locally in data\bond001-token.txt and is excluded from Git."
