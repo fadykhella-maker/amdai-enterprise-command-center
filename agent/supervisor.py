@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+import json
 import os
 import platform
 import subprocess
 import time
 from importlib import metadata
-from urllib.error import URLError
-from urllib.request import urlopen
+from pathlib import Path
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 import psutil
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -23,6 +25,39 @@ except Exception as exc:
 
 app = FastAPI(title="AMD Edge Supervisor", version="0.1.1")
 STARTED = time.time()
+
+BOND001_URL = "http://127.0.0.1:8766"
+BOND001_TOKEN_FILE = Path(__file__).resolve().parents[1] / "data" / "bond001-token.txt"
+
+
+def bond001_token() -> str:
+    if BOND001_TOKEN_FILE.exists():
+        return BOND001_TOKEN_FILE.read_text(encoding="utf-8").strip()
+    return ""
+
+
+def bond001_request(path: str, payload: dict | None = None, timeout: float = 300) -> dict:
+    """Proxy a call to the local Bond 001 service so the dashboard only needs the
+    Supervisor's own tunnel and token, instead of opening a second public port."""
+    token = bond001_token()
+    if not token:
+        raise HTTPException(status_code=503, detail="Bond 001 is not set up on this machine yet")
+    data = json.dumps(payload).encode("utf-8") if payload is not None else None
+    request = Request(
+        f"{BOND001_URL}{path}",
+        data=data,
+        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"} if data
+        else {"Authorization": f"Bearer {token}"},
+        method="POST" if data else "GET",
+    )
+    try:
+        with urlopen(request, timeout=timeout) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")[:500]
+        raise HTTPException(status_code=exc.code, detail=detail) from exc
+    except (URLError, TimeoutError, OSError) as exc:
+        raise HTTPException(status_code=503, detail=f"Bond 001 is unreachable: {exc}") from exc
 
 
 def local_service(url: str) -> dict[str, object]:
@@ -173,3 +208,20 @@ def benchmark(request: BenchmarkRequest) -> dict[str, object]:
         "gpu_seconds": duration,
         "checksum": checksum,
     }
+
+
+@app.get("/api/bond/models", dependencies=[Depends(require_token)])
+def bond_models() -> dict[str, object]:
+    """Real, currently-pulled Ollama models -- the dashboard's model picker must
+    only ever offer what this actually returns, never a hardcoded list."""
+    return bond001_request("/api/models")
+
+
+class BondChatRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=8000)
+    model: str | None = Field(default=None, max_length=200)
+
+
+@app.post("/api/bond/chat", dependencies=[Depends(require_token)])
+def bond_chat(request: BondChatRequest) -> dict[str, object]:
+    return bond001_request("/api/chat", {"message": request.message, "model": request.model})

@@ -77,8 +77,20 @@ def health() -> dict[str, object]:
     }
 
 
+@app.get("/api/models", dependencies=[Depends(require_token)])
+def models() -> dict[str, object]:
+    """List models actually pulled in the local Ollama runtime -- never a fabricated list."""
+    try:
+        tags = ollama_request("/api/tags")
+        names = [m.get("name") for m in tags.get("models", []) if m.get("name")]
+    except HTTPException:
+        names = []
+    return {"models": names, "default": MODEL}
+
+
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=8000)
+    model: str | None = Field(default=None, max_length=200)
 
 
 @app.post("/api/chat", dependencies=[Depends(require_token)])
@@ -86,7 +98,7 @@ def chat(body: ChatRequest) -> dict[str, object]:
     response = ollama_request(
         "/api/chat",
         {
-            "model": MODEL,
+            "model": body.model or MODEL,
             "stream": False,
             "messages": [
                 {"role": "system", "content": SYSTEM_PROMPT},

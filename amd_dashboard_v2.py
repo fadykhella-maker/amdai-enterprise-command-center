@@ -185,3 +185,93 @@ wb_desc=("Official UI is live and reachable from this laptop." if workbench_onli
 dynamic=[("WORKBENCHDOCK",workbench_dock),("RESOURCEMGRDOCK",resource_manager_dock),("WORKBENCHTEXT","state-live" if workbench_online else "state-stage"),("WORKBENCHSTATE","LIVE" if workbench_online else "PENDING"),("RESOURCEMGRTEXT","state-live" if resource_manager_online else "state-stage"),("RESOURCEMGRSTATE","LIVE" if resource_manager_online else "PENDING"),("OLLAMATEXT","state-live" if ollama_online else "state-stage"),("OLLAMASTATE","LIVE" if ollama_online else "PENDING"),("BONDTEXT","state-live" if bond_online else "state-stage"),("BONDSTATE","LIVE" if bond_online else "STAGED"),("COMPUTEKPI","green" if compute_ready else ""),("COMPUTETAGCLASS","" if compute_ready else "off"),("COMPUTETAG","VERIFIED" if compute_ready else "BLOCKED"),("COMPUTESTATE",compute_state),("COMPUTEERROR",compute_error),("DEDICATED",dedicated),("MEMORYAVAILABLE",memory_available),("WBTAGCLASS","" if workbench_online else "off"),("WBTAGTEXT","LIVE" if workbench_online else "NOT DEPLOYED"),("WBDESC",wb_desc),("WBBUTTON",wb_button),("EDGETUNNELSTATE","LIVE" if online else "NOT LIVE")]
 for old,new in dynamic+[("EDGECLASS","live" if online else ""),("EDGETEXT","state-live" if online else "state-off"),("EDGESTATE","LIVE" if online else "OFFLINE"),("STATECLASS","live" if online else "off"),("STATEKPI","green" if online else ""),("MODELCARDS",models),("AGENTCARDS",agents),("GPU_NAME_TOKEN",gpu),("REASON",reason),("TORCH",torch),("ARCH",arch),("HIP",hip),("GPUP",str(gpup)),("CPU",str(cpu)),("MEM",str(mem)),("STATE",state)]: shell=shell.replace(old,new)
 components.html(shell,height=1050,scrolling=True)
+
+# --- Floating Bond 001 widget: a real, native Streamlit chat pinned to the
+# actual browser viewport with position:fixed, deliberately built OUTSIDE the
+# components.html() iframe above -- "fixed" inside that iframe would only mean
+# fixed to the iframe's own small box. Mirrors the pattern already proven on
+# the NVIDIA/Kaggle side of this project (src/dashboard/app.py there), swapped
+# from remote Kaggle-kernel calls to direct HTTP calls against this laptop's
+# own Supervisor, which proxies to Bond 001's local Ollama runtime.
+st.markdown("""<style>
+div.st-key-bond_fab{position:fixed;right:20px;bottom:20px;z-index:999998;width:56px}
+div.st-key-bond_fab button{width:56px;height:56px;border-radius:50%!important;background:radial-gradient(circle at 32% 28%,#ffe58a,#f5c542 60%)!important;border:1px solid #574b25!important;color:#171306!important;font-weight:800!important;font-size:15px!important;box-shadow:0 10px 26px -8px rgba(245,197,66,.55)}
+div.st-key-bond_panel{position:fixed!important;right:20px;bottom:88px;z-index:999999;width:380px;max-width:calc(100vw - 40px);max-height:min(640px,calc(100vh - 128px));overflow-y:auto;background:#0a0e0b;border:1px solid #344039;border-radius:14px;box-shadow:0 30px 70px -20px #000;padding:16px 18px}
+div.st-key-bond_panel h3,div.st-key-bond_panel p,div.st-key-bond_panel label,div.st-key-bond_panel span,div.st-key-bond_panel div{color:#ffffff}
+</style>""", unsafe_allow_html=True)
+
+
+def bond_call(path: str, method: str = "GET", payload: dict | None = None):
+    if not api_url:
+        return None, "Secure laptop tunnel is not configured"
+    headers = {"Authorization": f"Bearer {api_token}"}
+    if sec("CF_ACCESS_CLIENT_ID") and sec("CF_ACCESS_CLIENT_SECRET"):
+        headers.update({"CF-Access-Client-Id": sec("CF_ACCESS_CLIENT_ID"), "CF-Access-Client-Secret": sec("CF_ACCESS_CLIENT_SECRET")})
+    try:
+        if method == "POST":
+            reply = requests.post(api_url + path, headers=headers, json=payload, timeout=90)
+        else:
+            reply = requests.get(api_url + path, headers=headers, timeout=8)
+        reply.raise_for_status()
+        return reply.json(), None
+    except Exception as exc:
+        return None, str(exc)[:200]
+
+
+@st.fragment
+def bond_widget_fragment():
+    with st.container(key="bond_fab"):
+        if st.button("B1", key="bond_toggle_btn", help="Bond 001"):
+            st.session_state["bond_panel_open"] = not st.session_state.get("bond_panel_open", False)
+
+    if not st.session_state.get("bond_panel_open"):
+        return
+
+    with st.container(key="bond_panel"):
+        st.markdown("### Bond 001")
+
+        models_resp, _ = bond_call("/api/bond/models")
+        local_models = list((models_resp or {}).get("models") or [])
+        default_model = (models_resp or {}).get("default")
+        # The AWS vLLM instance (Phase C) is only ever offered once it is
+        # actually LIVE -- never shown as a selectable option before then,
+        # matching the "never fabricate status" rule for every tile here.
+        cloud_online = services.get("aws_vllm", {}).get("state") == "online"
+        options = list(local_models)
+        if cloud_online:
+            options.append("aws-vllm (cloud)")
+        if not options and default_model:
+            options = [default_model]
+
+        selected = None
+        if not options:
+            st.caption("No models available - Bond 001's local Ollama runtime is unreachable.")
+        else:
+            if st.session_state.get("bond_selected_model") not in options:
+                st.session_state["bond_selected_model"] = options[0]
+            selected = st.selectbox("Model", options, key="bond_selected_model")
+
+        if "bond_messages" not in st.session_state:
+            st.session_state["bond_messages"] = []
+
+        for m in st.session_state["bond_messages"]:
+            st.chat_message(m["role"]).write(m["content"])
+
+        ready = bond_online and bool(options)
+        fmsg = st.chat_input(
+            "Message Bond 001..." if ready else "Bond 001 is offline...",
+            key="bond_float_input",
+            disabled=not ready,
+        )
+        if fmsg:
+            st.session_state["bond_messages"].append({"role": "user", "content": fmsg})
+            with st.spinner("Bond 001 is thinking..."):
+                resp, err = bond_call("/api/bond/chat", method="POST", payload={"message": fmsg, "model": selected})
+            if resp:
+                st.session_state["bond_messages"].append({"role": "assistant", "content": resp.get("message", "")})
+            else:
+                st.session_state["bond_messages"].append({"role": "assistant", "content": f"Bond 001 could not respond: {err}"})
+            st.rerun()
+
+
+bond_widget_fragment()

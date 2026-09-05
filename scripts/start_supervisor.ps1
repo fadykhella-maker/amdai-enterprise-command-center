@@ -3,10 +3,10 @@ $ErrorActionPreference = "Stop"
 $projectFolder = Split-Path -Parent $PSScriptRoot
 $tokenFolder = Join-Path $projectFolder "data"
 $tokenFile = Join-Path $tokenFolder "supervisor-token.txt"
-$pythonPath = "C:\AI\AMD-Enterprise-AI\.venv\Scripts\python.exe"
+$pythonPath = Join-Path $projectFolder ".venv\Scripts\python.exe"
 
 if (-not (Test-Path -LiteralPath $pythonPath)) {
-    throw "The AMD ROCm Python environment was not found at C:\AI\AMD-Enterprise-AI\.venv"
+    throw "The project virtual environment was not found at $projectFolder\.venv"
 }
 
 New-Item -ItemType Directory -Path $tokenFolder -Force | Out-Null

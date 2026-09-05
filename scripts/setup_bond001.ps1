@@ -26,7 +26,19 @@ if (-not $ollama) {
     if (-not $ollama) { throw "Ollama installed, but this terminal must be reopened so PATH can refresh." }
 }
 
-[Environment]::SetEnvironmentVariable("OLLAMA_VULKAN", "1", "User")
+# Radeon 840M is gfx1153 (Krackan Point), which is outside Ollama's ROCm/rocBLAS
+# supported-target list. Forcing it via HSA_OVERRIDE_GFX_VERSION was tested and
+# crashes ("ROCm error: device kernel image is invalid") because the gfx1151
+# kernels are not ISA-compatible with real gfx1153 hardware. Ollama's Vulkan
+# backend correctly detects and drives this GPU; it only needs to be told not
+# to drop integrated GPUs.
+[Environment]::SetEnvironmentVariable("OLLAMA_IGPU_ENABLE", "1", "User")
+[Environment]::SetEnvironmentVariable("HSA_OVERRIDE_GFX_VERSION", $null, "User")
+[Environment]::SetEnvironmentVariable("OLLAMA_VULKAN", $null, "User")
+# Registry writes above only reach brand-new process environment blocks, so also
+# set it for this session in case this script has to launch "ollama serve" itself.
+$env:OLLAMA_IGPU_ENABLE = "1"
+Remove-Item Env:\HSA_OVERRIDE_GFX_VERSION -ErrorAction SilentlyContinue
 
 try {
     Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/version" -TimeoutSec 3 | Out-Null
@@ -64,7 +76,12 @@ $health = Invoke-RestMethod -Uri "http://127.0.0.1:8766/health" -TimeoutSec 10
 $health | Format-List | Out-Host
 
 $taskCommand = "`"$python`" -m uvicorn agent.bond001:app --host 127.0.0.1 --port 8766"
-& schtasks.exe /Create /TN "Bond 001 Agent" /SC ONLOGON /TR $taskCommand /F | Out-Host
+# schtasks.exe re-tokenizes /TR by spaces even when PowerShell already quoted the
+# python.exe path, which breaks on "Fady KHELLA" in this machine's user profile
+# path. The documented fix is to escape the inner quotes and wrap the whole
+# command in one more outer quote pair so schtasks sees it as a single token.
+$taskCommandEscaped = '"' + $taskCommand.Replace('"', '\"') + '"'
+& schtasks.exe /Create /TN "Bond 001 Agent" /SC ONLOGON /TR $taskCommandEscaped /F | Out-Host
 
 Write-Host "Bond 001 is ready on http://127.0.0.1:8766" -ForegroundColor Green
 Write-Host "Its bearer token is stored locally in data\bond001-token.txt and is excluded from Git."
