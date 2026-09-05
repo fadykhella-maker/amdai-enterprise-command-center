@@ -195,3 +195,13 @@ AI Workbench is accepted only after its UI and API deployments are ready and the
 ## License
 
 MIT. See `LICENSE`.
+
+## Dashboard Sample Screenshots
+
+<img width="1470" height="722" alt="Screenshot 2026-09-05 at 1 54 36 PM" src="https://github.com/user-attachments/assets/5c4f19ad-d1ef-4059-8d2c-df252412a612" />
+
+<img width="1470" height="732" alt="Screenshot 2026-09-05 at 1 54 47 PM" src="https://github.com/user-attachments/assets/c59d18f0-8215-4d7e-afb7-b244d174d0fd" />
+
+<img width="1470" height="730" alt="Screenshot 2026-09-05 at 1 56 03 PM" src="https://github.com/user-attachments/assets/fecae4da-a4bd-42e8-ba4e-bd4ab16fa90c" />
+
+<img width="1470" height="729" alt="Screenshot 2026-09-05 at 1 56 26 PM" src="https://github.com/user-attachments/assets/233d2416-3841-423e-97c8-9cbb13464fe6" />
