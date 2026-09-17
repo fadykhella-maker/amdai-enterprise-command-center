@@ -11,6 +11,17 @@ import streamlit as st
 
 from auth.viewer_portal import require_viewer
 
+# Must be the very first Streamlit command of every script run -- including
+# the unauthenticated path, which otherwise calls st.stop() inside
+# require_viewer() before amd_dashboard_v2.py (and its own set_page_config
+# call) is ever reached, leaving the browser tab on the generic Streamlit
+# title/icon.
+st.set_page_config(
+    page_title="AMD Intelligent Cloud Control",
+    page_icon=str(Path(__file__).with_name("assets") / "amd-favicon.png"),
+    layout="wide",
+)
+
 require_viewer()
 
 # The very first script execution of a brand-new browser session (most

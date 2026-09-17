@@ -18,8 +18,6 @@ amd_lockup_mark_data_uri = (
     "data:image/png;base64," + base64.b64encode(amd_lockup_mark_path.read_bytes()).decode("ascii")
 )
 
-st.set_page_config(page_title="AMD Intelligent Cloud Control", page_icon=amd_icon_path, layout="wide")
-
 def sec(name: str) -> str:
     try: return str(st.secrets.get(name, "")).strip()
     except Exception: return ""
