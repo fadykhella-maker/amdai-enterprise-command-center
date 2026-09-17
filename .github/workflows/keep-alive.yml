@@ -1,0 +1,30 @@
+name: Keep Streamlit app awake
+
+# Streamlit Community Cloud puts free-tier apps to sleep after a period of
+# no visitor traffic, showing a "this app has gone to sleep" wake-up screen
+# to the next visitor instead of the real dashboard. There's no config
+# setting on Streamlit's side to disable that -- the supported workaround is
+# just generating occasional real traffic. This does that from inside the
+# repo itself (no new external service/account needed): a scheduled hit to
+# the app's own URL every few hours, comfortably more often than Streamlit's
+# inactivity window, so it never gets the chance to go idle.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit the live app
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 --retry 3 --retry-delay 10 "https://amdeai.streamlit.app/")
+          echo "Response: HTTP $code"
+          # 200 = served normally; 303/302 sometimes shown mid-wake -- either
+          # way the hit itself is what resets Streamlit's inactivity clock,
+          # so don't fail the job over the exact status code.
+          if [ "$code" -ge 500 ]; then
+            echo "::warning::Got HTTP $code from the app -- may be a real outage, not just a sleep screen."
+          fi
